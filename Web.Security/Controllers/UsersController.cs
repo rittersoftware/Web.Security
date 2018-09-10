@@ -23,5 +23,11 @@ namespace Web.Security.Controllers
             var viewModel = this.userManager.Users.ToList();
             return View(viewModel);
         }
+
+        public IActionResult UserInformation()
+        {
+            var viewModel = this.userManager.Users.ToList();
+            return View(viewModel);
+        }
     }
 }

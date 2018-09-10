@@ -11,5 +11,15 @@ namespace Web.Security.Data
         public virtual ICollection<IdentityUserRole<int>> UserRoles { get; set; }
 
         public virtual int Age { get; set; }
+        public string Username { get; }
+
+        public User()
+        {
+            
+        }
+        public User(string username)
+        {
+            Username = username;
+        }
     }
 }

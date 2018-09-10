@@ -84,7 +84,7 @@ namespace Web.Security.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            var user = new User()
+            var user = new User(model.UserName)
             {
                 UserName = model.UserName,
                 Email = model.Email,

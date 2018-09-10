@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Web.Security.Data;
 using Web.Security.Services;
 
@@ -18,12 +21,18 @@ namespace Web.Security
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public IConfigurationRoot Configuration { get; set; }
 
-        public IConfiguration Configuration { get; }
+        public Startup(IHostingEnvironment env)
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
+
+            builder.AddEnvironmentVariables();
+            Configuration = builder.Build();
+        }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -35,11 +44,15 @@ namespace Web.Security
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            // Add DB Context and Data Connection
             services.AddDbContext<AppIdentityDbContext>(options =>
                 options.UseSqlServer(Configuration["connection"]));
 
-            services.AddIdentity<User, Role>()
+            // Add Identity provider using your custom data context entities/models
+            services.AddIdentityCore<User>()
+                .AddRoles<Role>()
                 .AddEntityFrameworkStores<AppIdentityDbContext>()
+                .AddSignInManager()
                 .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
@@ -60,6 +73,13 @@ namespace Web.Security
                 options.SignIn.RequireConfirmedPhoneNumber = false;
             });
 
+            services.AddAuthentication(aa =>
+                {
+                    aa.DefaultScheme = IdentityConstants.ApplicationScheme;
+                    aa.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+                })
+                .AddIdentityCookies();
+
             services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/Security/Login";
@@ -77,7 +97,8 @@ namespace Web.Security
                 };
             });
 
-            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailSender, MessageServices>();
+            services.AddTransient<ISmsSender, MessageServices>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
