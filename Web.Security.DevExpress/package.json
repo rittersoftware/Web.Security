@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "name": "asp.net",
+  "private": true,
+  "devDependencies": {},
+  "dependencies": {
+    "devextreme": "18.1.6",
+    "jquery": "3.3.1",
+    "r.js": "^1.0.3",
+    "requirejs": "2.3.6"
+  },
+  "scripts": {
+    "postinstall": "r_js -convert node_modules/devextreme devextreme_amd"
+  }
+}

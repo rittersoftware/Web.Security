@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>DevExtreme with RequireJS and jQuery example</title>
+
+    <link rel="stylesheet" type="text/css" href="devextreme_amd/dist/css/dx.common.css" />
+    <link rel="stylesheet" type="text/css" href="devextreme_amd/dist/css/dx.light.css" />
+    <script src="node_modules/requirejs/require.js"></script>
+</head>
+
+<body>
+<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%)">
+    <div id="myButton"></div>
+</div>
+
+<script>
+    require.config({
+        paths: {
+            "jquery": "node_modules/jquery/dist/jquery",
+            "devextreme": "devextreme_amd"
+        }
+    });
+    require(["jquery", "devextreme/ui/dialog", "devextreme/ui/button", "devextreme/integration/jquery"], function($, dialog) {
+        $("#myButton").dxButton({
+            text: "Say 'Hello world'",
+            onClick: function() {
+                dialog.alert('Hello world!', '', false);
+            }
+        });
+    });
+</script>
+</body>
+
+</html>
